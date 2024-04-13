@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheese Clicker 🧀</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            position: relative; /* Ensure relative positioning for absolute button placement */
+        }
+
+        #top-right-buttons {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #content {
+            text-align: center;
+        }
+
+        #cheese {
+            font-size: 100px;
+            color: #ffd700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            animation: bounce 0.5s ease;
+        }
+
+        #text-above {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .menu {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* Styles for bottom-left text */
+        #bottom-left-text {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            font-size: 18px;
+            color: #555;
+            z-index: 9999; /* Ensure it appears above other elements */
+        }
+
+        .additional-text {
+            font-size: 16px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            color: #007bff;
+        }
+
+        /* Style for background music container */
+        #bgm-container {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 9999; /* Ensure it appears above other elements */
+        }
+    </style>
+</head>
+<body>
+    <div id="top-right-buttons">
+        <button id="shop-button" onclick="toggleMenu('shop-menu')">
+            <i class="fas fa-store"></i> Shop
+        </button>
+        <button id="changelog-button" onclick="toggleMenu('changelog-menu')">
+            <i class="fas fa-history"></i> Updates
+        </button>
+    </div>
+
+    <div id="content">
+        <div id="text-above">Cheese Click Counter: 0</div>
+        <div id="cheese" onclick="handleCheeseClick()">🧀</div>
+    </div>
+
+    <!-- Shop Menu -->
+    <div id="shop-menu" class="menu">
+        <div class="shop-menu-item" onclick="buyPowerUp('double-click')">Double Click Power-Up - Cost: 10 cheese</div>
+        <div class="shop-menu-item" onclick="buyPowerUp('auto-click')">Auto Click Power-Up - Cost: 20 cheese</div>
+        <div class="shop-menu-item" onclick="buyPowerUp('cheese-rain')">Cheese Rain Power-Up - Cost: 50 cheese</div>
+        <button onclick="closeMenu('shop-menu')">Close</button>
+    </div>
+
+    <!-- Changelog Menu -->
+    <div id="changelog-menu" class="menu">
+        <h1>Version: Alpha 2 "Rhythm update"</h1>
+        <br>
+        <p>- Added Click in style by Statix Bolt (yes, this dumb game has music)</p>
+        <p>- You can now click by pressing Ctrl (Command if you're on a Mac)</p>
+        <p>- Changed the buttons/ui (they look a lot better now)</p>
+        <a href="https://github.com/DownToEarthSoftware/CheeseClicker/releases">View the build on GitHub</a>
+        <button onclick="closeMenu('changelog-menu')">Close</button>
+    </div>
+
+    <!-- Background Music and Control Button -->
+    <div id="bgm-container">
+        <audio id="background-music" src="clickwithstyle.mp3" loop></audio>
+        <p>Clicking with style by Statix Bolt</p>
+        <button id="music-control" onclick="toggleBackgroundMusic()">
+            <i class="fas fa-music"></i>
+        </button>
+    </div>
+
+    <!-- Bottom Left Text -->
+    <div id="bottom-left-text">
+        © Down To Earth 2024 - 2024 under the DTES Public License.
+        <br>
+        <div class="additional-text"><a href="https://github.com/DownToEarthSoftware/CheeseClicker">GitHub</a></div>
+        <div class="additional-text"><a href="https://guilded.gg/DTE">Guilded server</a></div>
+        <div class="additional-text"><a href="https://www.patreon.com/DownToEarthSoftware">Patreon</a></div>
+    </div>
+
+    <script>
+        let clickCounter = 0;
+        let cheeseCount = 0;
+        let isMusicPlaying = true;
+
+        function handleCheeseClick() {
+            clickCounter++;
+            cheeseCount++;
+            document.getElementById('text-above').textContent = `Cheese Click Counter: ${clickCounter}`;
+            playClickSound();
+
+            const cheese = document.getElementById('cheese');
+            cheese.style.animation = 'none';
+            void cheese.offsetWidth;
+            cheese.style.animation = 'bounce 0.5s ease';
+        }
+
+        function playClickSound() {
+            const audio = new Audio('click-sound.mp3');
+            audio.play();
+        }
+
+        function toggleBackgroundMusic() {
+            const audio = document.getElementById('background-music');
+
+            if (isMusicPlaying) {
+                audio.pause();
+                document.getElementById('music-control').innerHTML = '<i class="fas fa-play"></i>';
+            } else {
+                audio.play();
+                document.getElementById('music-control').innerHTML = '<i class="fas fa-pause"></i>';
+            }
+
+            isMusicPlaying = !isMusicPlaying;
+        }
+
+        function toggleMenu(menuId) {
+            const menu = document.getElementById(menuId);
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function closeMenu(menuId) {
+            document.getElementById(menuId).style.display = 'none';
+        }
+
+        function buyPowerUp(powerUp) {
+            let cost = 0;
+            let multiplier = 1;
+
+            switch (powerUp) {
+                case 'double-click':
+                    cost = 10;
+                    multiplier = 2;
+                    break;
+                case 'auto-click':
+                    cost = 20;
+                    setInterval(handleCheeseClick, 1000);
+                    break;
+                case 'cheese-rain':
+                    cost = 50;
+                    multiplier = 5;
+                    setTimeout(() => {
+                        multiplier = 1;
+                    }, 10000);
+                    break;
+                default:
+                    return;
+            }
+
+            if (cheeseCount >= cost) {
+                cheeseCount -= cost;
+                clickCounter *= multiplier;
+                document.getElementById('text-above').textContent = `Cheese Click Counter: ${clickCounter}`;
+                closeMenu(menuId);
+            } else {
+                alert('Not enough cheese to buy this power-up!');
+            }
+        }
+
+        // Add event listener for a custom key (e.g., 'Ctrl' key, keyCode 17)
+        document.addEventListener('keydown', function(event) {
+            if (event.keyCode === 17) { // This checks for the 'Ctrl' key
+                handleCheeseClick(); // Simulate clicking the cheese when the 'Ctrl' key is pressed
+            }
+        });
+    </script>
+</body>
+</html>
